@@ -1,6 +1,7 @@
 package com.example.socialnetwork.controller;
 
 import com.example.socialnetwork.model.User;
+import com.example.socialnetwork.repository.UserRepository;
 import com.example.socialnetwork.service.NetworkAnalysisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -20,6 +22,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NetworkAnalysisControllerTest {
 
     private MockMvc mockMvc;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private NetworkAnalysisService networkAnalysisService;
@@ -62,13 +67,17 @@ class NetworkAnalysisControllerTest {
         user2.setId(2L);
         Set<User> community1 = new HashSet<>(Arrays.asList(user1, user2));
 
-        when(networkAnalysisService.identifyCommunities()).thenReturn(Arrays.asList(community1));
+        Map<String, Object> communityMap1 = new HashMap<>();
+        communityMap1.put("communityId", 1);
+        communityMap1.put("users", community1);
+
+        when(networkAnalysisService.identifyCommunities()).thenReturn(Arrays.asList(communityMap1));
 
         mockMvc.perform(get("/network/communities")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0][0].id").value(1))
-                .andExpect(jsonPath("$[0][1].id").value(2));
+                .andExpect(jsonPath("$[0].communityId").value(1))
+                .andExpect(jsonPath("$[0].users[*].id").value(org.hamcrest.Matchers.containsInAnyOrder(1, 2)));
     }
 
     @Test

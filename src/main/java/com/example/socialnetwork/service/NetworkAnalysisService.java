@@ -3,8 +3,7 @@ package com.example.socialnetwork.service;
 import com.example.socialnetwork.model.User;
 import com.example.socialnetwork.repository.UserRepository;
 import org.jgrapht.Graph;
-import org.jgrapht.alg.community.Community;
-import org.jgrapht.alg.community.LouvainClustering;
+import org.jgrapht.alg.clustering.LabelPropagationClustering;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class NetworkAnalysisService {
         return path;
     }
 
-    public List<Set<User>> identifyCommunities() {
+    public List<Map<String, Object>> identifyCommunities() {
         List<User> users = userRepository.findAll();
         Graph<User, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
 
@@ -69,17 +68,21 @@ public class NetworkAnalysisService {
             }
         }
 
-        // Apply Louvain Clustering
-        LouvainClustering<User, DefaultEdge> louvainClustering = new LouvainClustering<>(graph);
-        Community<User> community = louvainClustering.getCommunity();
+        // Apply Label Propagation Clustering
+        LabelPropagationClustering<User, DefaultEdge> clustering = new LabelPropagationClustering<>(graph);
+        List<Set<User>> communities = clustering.getClustering().getClusters();
 
-        // Convert community structure to list of sets of users
-        List<Set<User>> communities = new ArrayList<>();
-        for (Set<User> communitySet : community.getCommunities()) {
-            communities.add(communitySet);
+        // Convert community structure to list of maps with communityId and users
+        List<Map<String, Object>> communityList = new ArrayList<>();
+        int communityId = 1;
+        for (Set<User> community : communities) {
+            Map<String, Object> communityMap = new HashMap<>();
+            communityMap.put("communityId", communityId++);
+            communityMap.put("users", community);
+            communityList.add(communityMap);
         }
 
-        return communities;
+        return communityList;
     }
 
     public Map<Long, Integer> calculateDegreeCentrality() {

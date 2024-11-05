@@ -21,7 +21,7 @@ public class NetworkAnalysisController {
     }
 
     @GetMapping("/communities")
-    public List<Set<User>> identifyCommunities() {
+    public List<Map<String, Object>> identifyCommunities() {
         return networkAnalysisService.identifyCommunities();
     }
 

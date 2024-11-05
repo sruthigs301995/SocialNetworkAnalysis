@@ -67,10 +67,20 @@ class NetworkAnalysisServiceTest {
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2, user3, user4));
 
-        List<Set<User>> communities = networkAnalysisService.identifyCommunities();
+        List<Map<String, Object>> communities = networkAnalysisService.identifyCommunities();
         assertEquals(2, communities.size());
-        assertTrue(communities.get(0).contains(user1) || communities.get(0).contains(user3));
-        assertTrue(communities.get(1).contains(user1) || communities.get(1).contains(user3));
+
+        Map<String, Object> community1 = communities.get(0);
+        Map<String, Object> community2 = communities.get(1);
+
+        assertEquals(1, community1.get("communityId"));
+        assertEquals(2, community2.get("communityId"));
+
+        Set<User> users1 = new HashSet<>((Collection<User>) community1.get("users"));
+        Set<User> users2 = new HashSet<>((Collection<User>) community2.get("users"));
+
+        assertTrue(users1.contains(user1) || users1.contains(user3));
+        assertTrue(users2.contains(user1) || users2.contains(user3));
     }
 
     @Test
