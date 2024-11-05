@@ -3,6 +3,8 @@ package com.example.socialnetwork.service;
 import com.example.socialnetwork.model.User;
 import com.example.socialnetwork.repository.UserRepository;
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.alg.clustering.LabelPropagationClustering;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -16,33 +18,75 @@ public class NetworkAnalysisService {
     @Autowired
     private UserRepository userRepository;
 
+//    public List<User> findShortestPath(Long userId1, Long userId2) {
+//        User start = userRepository.findById(userId1).orElseThrow();
+//        User end = userRepository.findById(userId2).orElseThrow();
+//
+//        Queue<User> queue = new LinkedList<>();
+//        Map<User, User> previous = new HashMap<>();
+//        Set<User> visited = new HashSet<>();
+//
+//        queue.add(start);
+//        visited.add(start);
+//
+//        while (!queue.isEmpty()) {
+//            User current = queue.poll();
+//            if (current.equals(end)) {
+//                return reconstructPath(previous, start, end);
+//            }
+//
+//            for (User friend : current.getFriends()) {
+//                if (!visited.contains(friend)) {
+//                    queue.add(friend);
+//                    visited.add(friend);
+//                    previous.put(friend, current);
+//                }
+//            }
+//        }
+//
+//        return Collections.emptyList(); // No path found
+//    }
+
     public List<User> findShortestPath(Long userId1, Long userId2) {
-        User start = userRepository.findById(userId1).orElseThrow();
-        User end = userRepository.findById(userId2).orElseThrow();
+        Optional<User> user1Opt = userRepository.findById(userId1);
+        Optional<User> user2Opt = userRepository.findById(userId2);
 
-        Queue<User> queue = new LinkedList<>();
-        Map<User, User> previous = new HashMap<>();
-        Set<User> visited = new HashSet<>();
+        if (!user1Opt.isPresent() || !user2Opt.isPresent()) {
+            throw new IllegalArgumentException("User not found");
+        }
 
-        queue.add(start);
-        visited.add(start);
+        User user1 = user1Opt.get();
+        User user2 = user2Opt.get();
 
-        while (!queue.isEmpty()) {
-            User current = queue.poll();
-            if (current.equals(end)) {
-                return reconstructPath(previous, start, end);
-            }
+        Graph<User, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
 
-            for (User friend : current.getFriends()) {
-                if (!visited.contains(friend)) {
-                    queue.add(friend);
-                    visited.add(friend);
-                    previous.put(friend, current);
+        // Add vertices
+        List<User> users = userRepository.findAll();
+        users.forEach(graph::addVertex);
+
+        // Add edges
+        for (User user : users) {
+            for (User friend : user.getFriends()) {
+                if (graph.containsVertex(friend)) {
+                    graph.addEdge(user, friend);
                 }
             }
         }
 
-        return Collections.emptyList(); // No path found
+        // Ensure the graph contains the source and target vertices
+        if (!graph.containsVertex(user1) || !graph.containsVertex(user2)) {
+            throw new IllegalArgumentException("Graph must contain the source and target vertices");
+        }
+
+        // Find the shortest path using Dijkstra's Algorithm
+        DijkstraShortestPath<User, DefaultEdge> dijkstraAlg = new DijkstraShortestPath<>(graph);
+        GraphPath<User, DefaultEdge> path = dijkstraAlg.getPath(user1, user2);
+
+        if (path == null) {
+            throw new IllegalArgumentException("No path found between users");
+        }
+
+        return path.getVertexList();
     }
 
     private List<User> reconstructPath(Map<User, User> previous, User start, User end) {

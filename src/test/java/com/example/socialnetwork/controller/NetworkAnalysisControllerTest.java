@@ -38,6 +38,27 @@ class NetworkAnalysisControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(networkAnalysisController).build();
     }
 
+//    @Test
+//    void testFindShortestPath() throws Exception {
+//        User user1 = new User();
+//        user1.setId(1L);
+//        User user2 = new User();
+//        user2.setId(2L);
+//        User user3 = new User();
+//        user3.setId(3L);
+//
+//        when(networkAnalysisService.findShortestPath(1L, 3L)).thenReturn(Arrays.asList(user1, user2, user3));
+//
+//        mockMvc.perform(get("/network/shortest-path")
+//                        .param("userId1", "1")
+//                        .param("userId2", "3")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$[0].id").value(1))
+//                .andExpect(jsonPath("$[1].id").value(2))
+//                .andExpect(jsonPath("$[2].id").value(3));
+//    }
+
     @Test
     void testFindShortestPath() throws Exception {
         User user1 = new User();

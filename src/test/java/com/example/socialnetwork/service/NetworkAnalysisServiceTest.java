@@ -26,6 +26,29 @@ class NetworkAnalysisServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+//    @Test
+//    void testFindShortestPath() {
+//        User user1 = new User();
+//        user1.setId(1L);
+//        User user2 = new User();
+//        user2.setId(2L);
+//        User user3 = new User();
+//        user3.setId(3L);
+//
+//        user1.getFriends().add(user2);
+//        user2.getFriends().add(user3);
+//
+//        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+//        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+//        when(userRepository.findById(3L)).thenReturn(Optional.of(user3));
+//
+//        List<User> path = networkAnalysisService.findShortestPath(1L, 3L);
+//        assertEquals(3, path.size());
+//        assertEquals(1L, path.get(0).getId());
+//        assertEquals(2L, path.get(1).getId());
+//        assertEquals(3L, path.get(2).getId());
+//    }
+
     @Test
     void testFindShortestPath() {
         User user1 = new User();
@@ -36,11 +59,14 @@ class NetworkAnalysisServiceTest {
         user3.setId(3L);
 
         user1.getFriends().add(user2);
+        user2.getFriends().add(user1);
         user2.getFriends().add(user3);
+        user3.getFriends().add(user2);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
         when(userRepository.findById(3L)).thenReturn(Optional.of(user3));
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2, user3));
 
         List<User> path = networkAnalysisService.findShortestPath(1L, 3L);
         assertEquals(3, path.size());
@@ -48,6 +74,7 @@ class NetworkAnalysisServiceTest {
         assertEquals(2L, path.get(1).getId());
         assertEquals(3L, path.get(2).getId());
     }
+
 
     @Test
     void testIdentifyCommunities() {
