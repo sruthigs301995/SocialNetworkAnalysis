@@ -18,35 +18,6 @@ public class NetworkAnalysisService {
     @Autowired
     private UserRepository userRepository;
 
-//    public List<User> findShortestPath(Long userId1, Long userId2) {
-//        User start = userRepository.findById(userId1).orElseThrow();
-//        User end = userRepository.findById(userId2).orElseThrow();
-//
-//        Queue<User> queue = new LinkedList<>();
-//        Map<User, User> previous = new HashMap<>();
-//        Set<User> visited = new HashSet<>();
-//
-//        queue.add(start);
-//        visited.add(start);
-//
-//        while (!queue.isEmpty()) {
-//            User current = queue.poll();
-//            if (current.equals(end)) {
-//                return reconstructPath(previous, start, end);
-//            }
-//
-//            for (User friend : current.getFriends()) {
-//                if (!visited.contains(friend)) {
-//                    queue.add(friend);
-//                    visited.add(friend);
-//                    previous.put(friend, current);
-//                }
-//            }
-//        }
-//
-//        return Collections.emptyList(); // No path found
-//    }
-
     public List<User> findShortestPath(Long userId1, Long userId2) {
         Optional<User> user1Opt = userRepository.findById(userId1);
         Optional<User> user2Opt = userRepository.findById(userId2);

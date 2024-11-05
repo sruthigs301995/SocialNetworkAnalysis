@@ -15,11 +15,6 @@ public class NetworkAnalysisController {
     @Autowired
     private NetworkAnalysisService networkAnalysisService;
 
-//    @GetMapping("/shortest-path")
-//    public List<User> findShortestPath(@RequestParam Long userId1, @RequestParam Long userId2) {
-//        return networkAnalysisService.findShortestPath(userId1, userId2);
-//    }
-
     @GetMapping("/shortest-path")
     public List<User> findShortestPath(@RequestParam Long userId1, @RequestParam Long userId2) {
         return networkAnalysisService.findShortestPath(userId1, userId2);
